@@ -50,8 +50,12 @@ export class TaskService {
     return deletedTask;
   }
 
-  async markAsStarted(id: string, startDate: Date): Promise<Task> {
-    return this.taskModel.findByIdAndUpdate(id, { startDate }, { new: true });
+  async markAsStarted(id: string, completionDate: Date): Promise<Task> {
+    return this.taskModel.findByIdAndUpdate(
+      id,
+      { completionDate },
+      { new: true },
+    );
   }
 
   async markErrorOccurred(id: string, errorOccurredDate: Date): Promise<Task> {

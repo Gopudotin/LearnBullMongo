@@ -11,7 +11,7 @@ export class Task extends Document {
   type: string;
 
   @Prop({ default: Date.now })
-  dueDate: Date;
+  scheduledDate: Date;
 
   @Prop({ default: 'pending' })
   currentStatus: string;
@@ -23,7 +23,7 @@ export class Task extends Document {
   errorDescription: string;
 
   @Prop({ default: null, select: true }) // Include in the response by default
-  startDate: Date;
+  completionDate: Date;
 
   @Prop({ default: '', select: true }) // Include in the response by default
   errorOccurredDate: Date;

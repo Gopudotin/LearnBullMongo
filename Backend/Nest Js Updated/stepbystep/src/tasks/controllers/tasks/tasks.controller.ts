@@ -41,8 +41,11 @@ export class TaskController {
   }
 
   @Put(':id/start')
-  markAsStarted(@Param('id') id: string, @Body('startDate') startDate: Date) {
-    return this.taskService.markAsStarted(id, startDate);
+  markAsStarted(
+    @Param('id') id: string,
+    @Body('completionDate') completionDate: Date,
+  ) {
+    return this.taskService.markAsStarted(id, completionDate);
   }
 
   @Put(':id/error')

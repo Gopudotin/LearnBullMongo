@@ -8,5 +8,9 @@ export class QueueProcessor {
   async processJob(job: Job<any>) {
     // Your job processing logic goes here
     console.log('Processing job:', job.data);
+
+     // Log the queue contents
+     const queue = await job.queue.getJob(job.id);
+     console.log('Queue:', queue);
   }
 }

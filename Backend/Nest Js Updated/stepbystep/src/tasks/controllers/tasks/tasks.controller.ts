@@ -16,7 +16,8 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(@Body() createTaskDto: Partial<Task>) {
+  async create(@Body() createTaskDto: Partial<Task>) {
+    createTaskDto.scheduledDate = new Date(createTaskDto.scheduledDate);
     return this.taskService.create(createTaskDto);
   }
 
@@ -54,5 +55,10 @@ export class TaskController {
     @Body('errorOccurredDate') errorOccurredDate: Date,
   ) {
     return this.taskService.markErrorOccurred(id, errorOccurredDate);
+  }
+
+  @Put(':id/inprogress') // Define new endpoint for marking task as in progress
+  markAsInProgress(@Param('id') id: string) {
+    return this.taskService.markAsInProgress(id);
   }
 }

@@ -14,6 +14,8 @@ export class TaskService {
   ) {}
 
   async create(taskData: Partial<Task>): Promise<Task> {
+    
+
     const createdTask = new this.taskModel(taskData);
     const savedTask = await createdTask.save();
     await this.taskQueue.add(savedTask.toJSON()); // Pass savedTask data to queue
@@ -64,5 +66,19 @@ export class TaskService {
       { errorOccurredDate },
       { new: true },
     );
+  }
+
+  async markAsInProgress(id: string): Promise<Task> {
+    const updatedTask = await this.taskModel.findByIdAndUpdate(
+      id,
+      { currentStatus: 'in progress' },
+      { new: true },
+    );
+
+    if (!updatedTask) {
+      throw new NotFoundException('Task not found');
+    }
+
+    return updatedTask;
   }
 }

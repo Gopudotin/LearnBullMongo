@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const TaskForm = () => {
   const [taskData, setTaskData] = useState({
@@ -55,6 +56,7 @@ const TaskForm = () => {
     <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
       <div className="card p-4">
         <h2 className="text-center mb-4">Task Form</h2>
+        <Link to="/tasks" className="btn btn-secondary btn-sm" style={{ position: 'absolute', top: '8px', right: '8px', padding: '0.1rem 0.1rem' }}>View All</Link>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">Name:</label>
@@ -89,6 +91,13 @@ const TaskForm = () => {
               required
             />
           </div>
+          {/* Hidden fields with default values */}
+          <input type="hidden" name="currentStatus" value="pending" />
+          <input type="hidden" name="errorType" value="" />
+          <input type="hidden" name="errorDescription" value="" />
+          <input type="hidden" name="completionDate" value="" />
+          <input type="hidden" name="errorOccurredDate" value="" />
+          
           <button type="submit" className="btn btn-primary">Submit</button>
         </form>
       </div>

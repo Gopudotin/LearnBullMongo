@@ -1,24 +1,49 @@
-// tasks/services/task.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task, TaskDocument } from 'src/tasks/Model/task.model';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
+import { QueueProducer } from 'src/queue/queue.producer';
+import { Console } from 'console';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
-    @InjectQueue('taskQueue') private taskQueue: Queue,
+    private readonly queueProducer: QueueProducer,
   ) {}
 
   async create(taskData: Partial<Task>): Promise<Task> {
-    
+    // Get the scheduled date
+    const scheduledDate = new Date(taskData.scheduledDate);
+    const currentTime = new Date();
 
+    console.log(`The scheduled date is ${scheduledDate}`);
+    console.log(`The Current time is ${currentTime}`);
+
+    // Check if the scheduled date is in the future
+    if (scheduledDate <= currentTime) {
+      console.log(
+        'Scheduled date has already passed. Task will not be added to queue.',
+      );
+      throw new Error(
+        'Scheduled date has already passed. Task will not be added to queue.',
+      );
+    }
+
+    // Create and save task to database
     const createdTask = new this.taskModel(taskData);
     const savedTask = await createdTask.save();
-    await this.taskQueue.add(savedTask.toJSON()); // Pass savedTask data to queue
+
+    // Calculate delay until scheduled date
+    const delay = scheduledDate.getTime() - currentTime.getTime();
+    console.log(delay);
+
+    // Add task to queue after the delay
+    setTimeout(async () => {
+      await this.queueProducer.addJob(savedTask.toJSON());
+      console.log('Task added to queue. Waiting for scheduled date...');
+    }, delay);
+
     return savedTask;
   }
 

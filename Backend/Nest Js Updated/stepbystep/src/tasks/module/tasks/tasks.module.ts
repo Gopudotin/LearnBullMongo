@@ -5,6 +5,7 @@ import { TaskService } from 'src/tasks/services/tasks/tasks.service';
 import { Task, TaskSchema } from 'src/tasks/Model/task.model';
 import { QueueModule } from 'src/queue/queue.module';
 import { BullModule } from '@nestjs/bull';
+import { QueueProducer } from 'src/queue/queue.producer';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { BullModule } from '@nestjs/bull';
     }),
   ],
   controllers: [TaskController],
-  providers: [TaskService],
-  exports: [TaskService], // Export TaskService if needed outside the module
+  providers: [TaskService, QueueProducer],
+  exports: [TaskService],
 })
 export class TasksModule {}

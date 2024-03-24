@@ -9,7 +9,7 @@ export class QueueProducer {
 
   // Add job to the queue
   async addJob(taskData: Task) {
-    const job = await this.taskQueue.add(taskData.toJSON());
+    const job = await this.taskQueue.add(taskData);
     console.log(`Job added to queue: ${JSON.stringify(job.data)}`);
     return job;
   }

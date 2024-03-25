@@ -107,11 +107,23 @@ export class TaskService {
   }
 
   async markAsSuccess(id: string): Promise<Task> {
-    return this.taskModel.findByIdAndUpdate(
+    const completionDate = new Date(); // Get the current date and time
+    const updatedTask = await this.taskModel.findByIdAndUpdate(
       id,
-      { currentStatus: 'success' },
+      {
+        currentStatus: 'success',
+        completionDate: completionDate,
+      },
       { new: true },
     );
+
+    if (!updatedTask) {
+      throw new NotFoundException('Task not found');
+    }
+    console.log(
+      `Updating completionDate for task with ID ${id} to current date and time: ${completionDate.toISOString()}`,
+    );
+    return updatedTask;
   }
 
   async markAsFailure(id: string): Promise<Task> {
@@ -130,12 +142,20 @@ export class TaskService {
     console.log(
       `Waiting for two minutes before processing task with ID: ${id}`,
     );
-    await this.delay(120000); // Wait for two minutes
+    //await this.delay(120000); // Wait for two minutes
+    await this.delay(20000);
+
     console.log(`Two minutes have passed. Processing task with ID: ${id}`);
     const task = await this.taskModel.findById(id).exec();
     if (task.payload === 'success') {
       console.log(`Task with ID ${id} payload is success. Marking as success.`);
       await this.markAsSuccess(id);
+      // Update the completionDate to the current date and time
+      await this.taskModel.findByIdAndUpdate(
+        id,
+        { completionDate: new Date() },
+        { new: true },
+      );
     } else if (task.payload === 'failure') {
       console.log(`Task with ID ${id} payload is failure. Marking as failure.`);
       await this.markAsFailure(id);

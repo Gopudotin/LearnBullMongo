@@ -127,26 +127,39 @@ export class TaskService {
   }
 
   async markAsFailure(id: string): Promise<Task> {
-    return this.taskModel.findByIdAndUpdate(
+    const errorOccurredDate = new Date(); // Get the current date and time
+    console.log(
+      `Updating errorOccurredDate for task with ID ${id} to current date and time: ${errorOccurredDate.toISOString()}`,
+    );
+    const updatedTask = await this.taskModel.findByIdAndUpdate(
       id,
-      { currentStatus: 'failure' },
+      {
+        currentStatus: 'failure',
+        errorOccurredDate: errorOccurredDate,
+      },
       { new: true },
     );
+
+    if (!updatedTask) {
+      throw new NotFoundException('Task not found');
+    }
+    console.log(
+      `Error occurred date updated successfully for task with ID ${id}`,
+    );
+    return updatedTask;
   }
 
   async delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async markAfterTwoMinutes(id: string) {
-    console.log(
-      `Waiting for two minutes before processing task with ID: ${id}`,
-    );
-    //await this.delay(120000); // Wait for two minutes
-    await this.delay(20000);
+  async markAfterSeconds(id: string) {
+    console.log(`Waiting for 20 seconds before processing task with ID: ${id}`);
+    await this.delay(20000); // Wait for 20 seconds
 
-    console.log(`Two minutes have passed. Processing task with ID: ${id}`);
+    console.log(`20 seconds have passed. Processing task with ID: ${id}`);
     const task = await this.taskModel.findById(id).exec();
+
     if (task.payload === 'success') {
       console.log(`Task with ID ${id} payload is success. Marking as success.`);
       await this.markAsSuccess(id);
@@ -157,8 +170,27 @@ export class TaskService {
         { new: true },
       );
     } else if (task.payload === 'failure') {
-      console.log(`Task with ID ${id} payload is failure. Marking as failure.`);
-      await this.markAsFailure(id);
+      try {
+        console.log(
+          `Task with ID ${id} payload is failure. Marking as failure.`,
+        );
+        // Mark as failure first and await the result
+        await this.markAsFailure(id);
+        // Retrieve the updated task object from the database
+        const updatedTaskFromDB = await this.taskModel.findById(id).exec();
+        // Check if errorOccurredDate is null, if yes, update it with the current date and time
+        if (!updatedTaskFromDB.errorOccurredDate) {
+          await this.taskModel.findByIdAndUpdate(
+            id,
+            { errorOccurredDate: new Date() },
+            { new: true },
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Error occurred while processing task with ID ${id}: ${error.message}`,
+        );
+      }
     }
   }
 }

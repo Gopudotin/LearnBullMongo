@@ -1,4 +1,3 @@
-// tasks/models/task.model.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -27,8 +26,11 @@ export class Task extends Document {
 
   @Prop({ default: '', select: true }) // Include in the response by default
   errorOccurredDate: Date;
+
+  @Prop({ default: '' }) // Payload field
+  payload: string;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
 
-export type TaskDocument = Task & Document; // Define TaskDocument type
+export type TaskDocument = Task & Document;

@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task, TaskDocument } from 'src/tasks/Model/task.model';
 import { QueueProducer } from 'src/queue/queue.producer';
-import { Console } from 'console';
 
 @Injectable()
 export class TaskService {
@@ -105,5 +104,41 @@ export class TaskService {
     }
 
     return updatedTask;
+  }
+
+  async markAsSuccess(id: string): Promise<Task> {
+    return this.taskModel.findByIdAndUpdate(
+      id,
+      { currentStatus: 'success' },
+      { new: true },
+    );
+  }
+
+  async markAsFailure(id: string): Promise<Task> {
+    return this.taskModel.findByIdAndUpdate(
+      id,
+      { currentStatus: 'failure' },
+      { new: true },
+    );
+  }
+
+  async delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async markAfterTwoMinutes(id: string) {
+    console.log(
+      `Waiting for two minutes before processing task with ID: ${id}`,
+    );
+    await this.delay(120000); // Wait for two minutes
+    console.log(`Two minutes have passed. Processing task with ID: ${id}`);
+    const task = await this.taskModel.findById(id).exec();
+    if (task.payload === 'success') {
+      console.log(`Task with ID ${id} payload is success. Marking as success.`);
+      await this.markAsSuccess(id);
+    } else if (task.payload === 'failure') {
+      console.log(`Task with ID ${id} payload is failure. Marking as failure.`);
+      await this.markAsFailure(id);
+    }
   }
 }

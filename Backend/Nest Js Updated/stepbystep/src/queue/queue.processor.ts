@@ -20,7 +20,12 @@ export class QueueProcessor {
     // Log the processed job
     console.log('Processing job:', job.data);
 
-    // Remove job from queue (optional, depending on your requirements)
+    // Mark the task as success/failure after two minutes
+    console.log('The markAfterTwoMinutes function is being executed');
+    await this.taskService.markAfterTwoMinutes(taskId);
+
+    // Remove job from queue after markAfterTwoMinutes function has executed
+    console.log('Removing job from queue after two minutes');
     await job.remove();
   }
 }

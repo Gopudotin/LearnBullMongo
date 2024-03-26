@@ -131,11 +131,28 @@ export class TaskService {
     console.log(
       `Updating errorOccurredDate for task with ID ${id} to current date and time: ${errorOccurredDate.toISOString()}`,
     );
+
+    // Selecting random error type and description
+    const errorTypes = ['Type1', 'Type2', 'Type3', 'Type4', 'Type5'];
+    const errorDescriptions = [
+      'Description1',
+      'Description2',
+      'Description3',
+      'Description4',
+      'Description5',
+    ];
+    const randomErrorType =
+      errorTypes[Math.floor(Math.random() * errorTypes.length)];
+    const randomErrorDescription =
+      errorDescriptions[Math.floor(Math.random() * errorDescriptions.length)];
+
     const updatedTask = await this.taskModel.findByIdAndUpdate(
       id,
       {
         currentStatus: 'failure',
         errorOccurredDate: errorOccurredDate,
+        errorType: randomErrorType,
+        errorDescription: randomErrorDescription,
       },
       { new: true },
     );
@@ -143,6 +160,7 @@ export class TaskService {
     if (!updatedTask) {
       throw new NotFoundException('Task not found');
     }
+
     console.log(
       `Error occurred date updated successfully for task with ID ${id}`,
     );

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux'; 
+import { addTask } from '../reducers/taskSlice';
 
 const TaskForm = () => {
+  const dispatch = useDispatch(); // Initialize useDispatch hook
+
   const [taskData, setTaskData] = useState({
     name: '',
     type: '',
@@ -10,7 +14,8 @@ const TaskForm = () => {
     errorType: '',
     errorDescription: '',
     completionDate: null,
-    errorOccurredDate: null
+    errorOccurredDate: null,
+    payload: '' // Initialize payload field
   });
 
   const handleChange = (e) => {
@@ -33,6 +38,8 @@ const TaskForm = () => {
       });
       if (response.ok) {
         console.log('Task created successfully!');
+        // Dispatch addTask action with taskData as payload
+        dispatch(addTask(taskData));
         // Reset the form fields after successful submission
         setTaskData({
           name: '',
@@ -42,7 +49,8 @@ const TaskForm = () => {
           errorType: '',
           errorDescription: '',
           completionDate: null,
-          errorOccurredDate: null
+          errorOccurredDate: null,
+          payload: '' // Reset payload field
         });
       } else {
         console.error('Failed to create task:', response.statusText);
@@ -90,6 +98,20 @@ const TaskForm = () => {
               onChange={handleChange}
               required
             />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Payload:</label>
+            <select
+              className="form-select"
+              name="payload"
+              value={taskData.payload}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select payload</option>
+              <option value="success">Success</option>
+              <option value="failure">Failure</option>
+            </select>
           </div>
           {/* Hidden fields with default values */}
           <input type="hidden" name="currentStatus" value="pending" />

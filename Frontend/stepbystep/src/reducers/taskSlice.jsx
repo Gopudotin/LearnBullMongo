@@ -1,19 +1,24 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Async thunk action to fetch tasks from the API
-export const fetchTasks = createAsyncThunk("task/fetchTasks", async () => {
-  try {
-    const response = await fetch("http://localhost:3000/tasks");
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    } else {
-      throw new Error("Failed to fetch tasks");
+export const fetchTasks = createAsyncThunk(
+  "task/fetchTasks",
+  async ({ page, perPage }) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/tasks?page=${page}&perPage=${perPage}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error("Failed to fetch tasks");
+      }
+    } catch (error) {
+      throw new Error("Error occurred while fetching tasks:", error.message);
     }
-  } catch (error) {
-    throw new Error("Error occurred while fetching tasks:", error.message);
   }
-});
+);
 
 const initialState = {
   tasks: [], // Array to hold all tasks

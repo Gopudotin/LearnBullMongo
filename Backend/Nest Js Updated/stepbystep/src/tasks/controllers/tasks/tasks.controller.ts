@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TaskService } from 'src/tasks/services/tasks/tasks.service';
 import { Task } from 'src/tasks/Model/task.model';
@@ -21,8 +22,20 @@ export class TaskController {
   }
 
   @Get()
-  findAll() {
-    return this.taskService.findAll();
+  // It takes two query parameters: page (default value is 1) and perPage (default value is 10),
+  async findAll(
+    @Query('perPage') perPage: number = 2, //number of tasks per page
+    @Query('page') page: number = 1, //current page number
+  ) {
+    const tasks = await this.taskService.findAll(page, perPage);
+    const totalCount = await this.taskService.countAll();
+    return {
+      data: tasks,
+      total: totalCount,
+      page,
+      perPage,
+      totalPages: Math.ceil(totalCount / perPage),
+    };
   }
 
   @Get(':id')

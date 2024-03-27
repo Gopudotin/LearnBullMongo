@@ -4,7 +4,7 @@ import { fetchTasks } from "../reducers/taskSlice";
 
 const TaskList = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const tasksPerPage = 2;
+  const [tasksPerPage] = useState(2);
 
   const dispatch = useDispatch();
   const tasks = useSelector((state) => state.task.tasks);
@@ -12,8 +12,8 @@ const TaskList = () => {
   const error = useSelector((state) => state.task.error);
 
   useEffect(() => {
-    dispatch(fetchTasks()); // fetchTasks action creator or async thunk
-  }, [dispatch]);
+    dispatch(fetchTasks({ page: currentPage, perPage: tasksPerPage }));
+  }, [dispatch, currentPage, tasksPerPage]);
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -23,17 +23,17 @@ const TaskList = () => {
     return <div>Error: {error}</div>;
   }
 
-  // Logic for pagination
-  const indexOfLastTask = currentPage * tasksPerPage;
-  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
+  // Access tasks.data instead of tasks directly
+  const taskData = tasks.data || [];
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  if (taskData.length === 0) {
+    return <div>No tasks available</div>;
+  }
 
   return (
     <div className="container">
       <h2 className="text-center mb-4">Task List</h2>
-      {currentTasks.map((task) => (
+      {taskData.map((task) => (
         <div key={task.id} className="card mb-3">
           <div className="card-body">
             <h5 className="card-title">{task.name}</h5>
@@ -57,7 +57,7 @@ const TaskList = () => {
       <nav aria-label="Page navigation">
         <ul className="pagination justify-content-center">
           {Array.from(
-            { length: Math.ceil(tasks.length / tasksPerPage) },
+            { length: Math.ceil(tasks.total / tasksPerPage) },
             (_, index) => (
               <li
                 key={index + 1}
@@ -66,7 +66,7 @@ const TaskList = () => {
                 }`}
               >
                 <button
-                  onClick={() => paginate(index + 1)}
+                  onClick={() => setCurrentPage(index + 1)}
                   className="page-link"
                 >
                   {index + 1}

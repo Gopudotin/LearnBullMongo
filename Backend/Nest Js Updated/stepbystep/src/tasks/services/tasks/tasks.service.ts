@@ -46,8 +46,20 @@ export class TaskService {
     return savedTask;
   }
 
-  async findAll(): Promise<Task[]> {
-    return this.taskModel.find().exec();
+  async findAll(page: number, perPage: number): Promise<Task[]> {
+    const tasks = await this.taskModel
+      .find()
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .exec();
+    return tasks;
+  }
+
+  //This method is responsible for counting the total number of tasks in the database.
+  //It doesn't take any parameters and simply executes a query to count all documents in the taskModel.
+  async countAll(): Promise<number> {
+    const count = await this.taskModel.countDocuments().exec();
+    return count;
   }
 
   async findOne(id: string): Promise<Task> {
